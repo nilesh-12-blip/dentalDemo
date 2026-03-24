@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — PearlSmile Dental</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <span>🦷</span>
+      <h1>PearlSmile</h1>
+      <p>Admin Dashboard</p>
+    </div>
+    <form onsubmit="adminLogin(event)">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="admin" required/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" required/>
+      </div>
+      <p class="login-hint">Default: admin / dental2025</p>
+      <button type="submit" class="login-btn">Sign In →</button>
+    </form>
+    <a href="index.html" class="back-link">← Back to Website</a>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span>🦷</span><span>PearlSmile</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="s-link active" onclick="showTab('overview', this)">
+        <span>📊</span> Overview
+      </a>
+      <a href="#" class="s-link" onclick="showTab('appointments', this)">
+        <span>📅</span> Appointments
+      </a>
+      <a href="#" class="s-link" onclick="showTab('patients', this)">
+        <span>👥</span> Patients
+      </a>
+      <a href="#" class="s-link" onclick="showTab('reviews', this)">
+        <span>⭐</span> Reviews
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="s-link" target="_blank"><span>🌐</span> View Site</a>
+      <button class="s-link logout-btn" onclick="adminLogout()"><span>🚪</span> Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div>
+        <h2 id="pageTitle">Overview</h2>
+        <p id="pageDate"></p>
+      </div>
+      <div class="dash-actions">
+        <span class="admin-badge">🛡️ Admin</span>
+      </div>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon">📅</div>
+          <div class="kpi-data">
+            <span class="kpi-num" id="kpiTotal">0</span>
+            <span class="kpi-label">Total Appointments</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">⏳</div>
+          <div class="kpi-data">
+            <span class="kpi-num" id="kpiPending">0</span>
+            <span class="kpi-label">Pending</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-data">
+            <span class="kpi-num" id="kpiDone">0</span>
+            <span class="kpi-label">Completed</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">⭐</div>
+          <div class="kpi-data">
+            <span class="kpi-num" id="kpiReviews">0</span>
+            <span class="kpi-label">Reviews</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3>Today's Appointments</h3>
+            <span class="badge" id="todayBadge">0</span>
+          </div>
+          <div id="todayList" class="apt-mini-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Services Booked</h3></div>
+          <div id="servicesChart" class="bar-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS TAB -->
+    <div id="tab-appointments" class="tab-content hidden">
+      <div class="tab-bar">
+        <button class="filter-btn active" onclick="filterAppts('All', this)">All</button>
+        <button class="filter-btn" onclick="filterAppts('Pending', this)">Pending</button>
+        <button class="filter-btn" onclick="filterAppts('Confirmed', this)">Confirmed</button>
+        <button class="filter-btn" onclick="filterAppts('Completed', this)">Completed</button>
+        <button class="filter-btn" onclick="filterAppts('Cancelled', this)">Cancelled</button>
+        <input type="text" id="searchAppt" placeholder="🔍 Search by name or phone..." class="search-input" oninput="renderAppointments()"/>
+      </div>
+      <div id="apptTable" class="table-wrapper"></div>
+    </div>
+
+    <!-- PATIENTS TAB -->
+    <div id="tab-patients" class="tab-content hidden">
+      <div id="patientsTable" class="table-wrapper"></div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div id="tab-reviews" class="tab-content hidden">
+      <div id="reviewsAdmin" class="reviews-admin-grid"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- APPOINTMENT DETAIL MODAL -->
+<div id="apptModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeApptModal()">✕</button>
+    <h3 id="modalTitle">Appointment Detail</h3>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="adminToast"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>
